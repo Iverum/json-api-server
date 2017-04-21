@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "restify": "^4.3.0"
+    "restify": "^4.3.0",
+    "restify-plugins": "^1.6.0"
   }
 }

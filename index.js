@@ -1,14 +1,32 @@
-var restify = require('restify');
+var restify = require('restify')
+var plugins = require('restify-plugins')
 
-function respond(req, res, next) {
-  res.send('hello ' + req.params.name);
-  next();
+function sendUnsupportedType(req, res) {
+  res.send(415)
 }
 
-var server = restify.createServer();
-server.get('/hello/:name', respond);
-server.head('/hello/:name', respond);
+var server = restify.createServer({
+  name: 'JSON::API Server',
+  version: '1.0.0',
+  formatters: {
+    'application/vnd.api+json': function handleJsonApi(req, res, body, cb) {
+      res.setHeader('content-type', 'application/vnd.api+json')
+      var data = (body) ? JSON.stringify(body) : 'null';
+      return cb(null, data);
+    },
+    'application/javascript': sendUnsupportedType,
+    'application/json': sendUnsupportedType,
+    'application/octet-stream': sendUnsupportedType,
+    'text/plain': sendUnsupportedType
+  }
+})
+server.use(plugins.acceptParser(['application/vnd.api+json']))
+
+server.get('/echo/:name', function (req, res, next) {
+  res.send(req.params);
+  return next();
+});
 
 server.listen(8080, function() {
-  console.log('%s listening at %s', server.name, server.url);
-});
+  console.log('%s listening at %s', server.name, server.url)
+})
