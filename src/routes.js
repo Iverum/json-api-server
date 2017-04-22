@@ -35,7 +35,7 @@ export function generateRoutes(model) {
 
     update: function updateResource(req, res, next) {
       const bodyJson = JSON.parse(req.body.toString('utf8'))
-      const attributesToUpdate = bodyJson.data.attributes
+      const attributesToUpdate = _.get(bodyJson, 'data.attributes', {})
       const updates = apiHelper.deserialize(bodyJson)
       return model.update(updates, {
         where: { id: updates.id },
@@ -49,6 +49,17 @@ export function generateRoutes(model) {
         }).then((resource) => {
           res.send(200, apiHelper.serialize(resource))
           return next()
+        })
+    },
+
+    delete: function deleteResource(req, res, next) {
+      return model.destroy({ where: { id: req.params.id } })
+        .then((numberDestroyed) => {
+          if (numberDestroyed === 1) {
+            res.send(204)
+          } else {
+            throw Error('Could not delete resource')
+          }
         })
     }
   }

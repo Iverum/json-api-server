@@ -58,6 +58,7 @@ const apiServer = {
       server.get(`/${key}/:id`, value.routes.get)
       server.post(`/${key}`, value.routes.create)
       server.patch(`/${key}/:id`, value.routes.update)
+      server.del(`/${key}/:id`, value.routes.delete)
     })
 
     server.listen(8080, function() {
