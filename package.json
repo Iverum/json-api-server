@@ -1,12 +1,14 @@
 {
   "name": "json-api-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Provides a server that implements JSON:API spec",
+  "main": "lib/index.js",
   "scripts": {
+    "build": "babel src -d lib",
+    "start": "babel src -d lib && node lib/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Blake Hair <blake.hair@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.4",
@@ -14,5 +16,9 @@
     "restify-plugins": "^1.6.0",
     "sequelize": "^3.30.4",
     "yayson": "^2.0.3"
+  },
+  "devDependencies": {
+    "babel-cli": "6.24.1",
+    "babel-preset-env": "^1.4.0"
   }
 }
