@@ -12,7 +12,7 @@ function handleError(res, body) {
   if (body instanceof Errors.NotFoundError) {
     res.status(404)
     return {
-      errors: [createError('404', 'Resource Not Found')]
+      errors: [createError('404', 'Resource Not Found', body.message)]
     }
   }
 

@@ -65,6 +65,16 @@ export default function generateRoutes(model) {
           res.send(200, apiHelper.serialize(resource))
           return next()
         })
+        .catch(sequelize.ValidationError, (error) => {
+          const detail = _.reduce(error.errors, (msg, err) => `${msg}${err.path}: ${err.message}\n`, '')
+          res.send(400, {
+            errors: [{
+              status: '400',
+              title: 'Bad Request',
+              detail
+            }]
+          })
+        })
     },
 
     delete: function deleteResource(req, res, next) {
@@ -74,8 +84,9 @@ export default function generateRoutes(model) {
             res.send(204)
             return next()
           }
-          throw Error('Could not delete resource')
+          return next(new Errors.NotFoundError())
         })
+        .catch(() => next(new Errors.NotFoundError()))
     }
   }
 }
