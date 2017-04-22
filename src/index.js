@@ -43,7 +43,8 @@ const apiServer = {
 
     _.forOwn(resources, function mapResources(value, key) {
       value.model.sync({ force: true })
-      server.get(`/${key}`, value.routes.get)
+      server.get(`/${key}`, value.routes.getAll)
+      server.get(`/${key}/:id`, value.routes.get)
       server.post(`/${key}`, value.routes.create)
     })
 
