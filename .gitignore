@@ -1,4 +1,5 @@
 *.sqlite
+build/
 
 # Logs
 logs

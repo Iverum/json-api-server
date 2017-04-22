@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "babel src -d lib",
-    "start": "babel src -d lib && node lib/index.js",
+    "start": "babel src -d lib && babel example -d build && node build/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Blake Hair <blake.hair@gmail.com>",

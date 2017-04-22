@@ -10,6 +10,7 @@ const database = new Database('database', { storage: './database.sqlite' })
 const resources = {}
 
 const apiServer = {
+  Sequelize: Sequelize,
   define: function define(resource) {
     const model = database.defineModel(resource.type, resource.attributes)
     resources[resource.type] = {
@@ -66,14 +67,4 @@ const apiServer = {
     })
   }
 }
-
 export default apiServer
-
-apiServer.define({
-  type: 'users',
-  attributes: {
-    firstName: { type: Sequelize.STRING },
-    lastName: { type: Sequelize.STRING }
-  }
-})
-apiServer.start()
