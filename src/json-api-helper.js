@@ -1,21 +1,23 @@
 import yayson from 'yayson'
 
-const { Store, Presenter } = yayson({ adapter: 'sequelize' })
+const { Store } = yayson({ adapter: 'sequelize' })
 const store = new Store()
 
 export default class JsonApiHelper {
-  constructor(type) {
+  constructor(type, adapter = 'sequelize') {
     this.type = type
+    this.adapter = adapter
   }
 
-  static deserialize(data) {
+  deserialize(data) {
     const deserialized = store.sync(data)
     delete deserialized.type
     return deserialized
   }
 
   serialize(data) {
-    const presenter = new Presenter()
+    const jsonApi = yayson({ adapter: this.adapter })
+    const presenter = new jsonApi.Presenter()
     presenter.type = this.type
     return presenter.render(data)
   }
