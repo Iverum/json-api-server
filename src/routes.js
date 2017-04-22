@@ -1,32 +1,26 @@
-import yayson from 'yayson'
 import _ from 'lodash'
-
-const { Store, Presenter } = yayson({ adapter: 'sequelize' })
+import JsonApiHelper from './json-api-helper'
 
 export function generateRoutes(model) {
-  const store = new Store()
+  const apiHelper = new JsonApiHelper(model.getTableName())
+  console.log(apiHelper)
   return {
     get: function getResource(req, res, next) {
-      const presenter = new Presenter()
-      presenter.type = model.getTableName()
       return model.findAll()
         .then((response) => {
-          res.send(presenter.render(response))
+          res.send(apiHelper.serialize(response))
           return next()
         })
     },
 
     create: function createResource(req, res, next) {
-      const presenter = new Presenter()
-      presenter.type = model.getTableName()
-      const resource = store.sync(JSON.parse(req.body.toString('utf8')))
-      delete resource.type
+      const resource = apiHelper.deserialize(JSON.parse(req.body.toString('utf8')))
       return model.findOrCreate({ where: resource, default: resource })
         .spread(function(user, created) {
           if (created) {
-            res.send(200, presenter.render(user))
+            res.send(200, apiHelper.serialize(user))
           } else {
-            res.send(201, presenter.render(user))
+            res.send(201, apiHelper.serialize(user))
           }
           return next()
         })
