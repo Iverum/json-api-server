@@ -1,7 +1,7 @@
 {
   "name": "json-api-server",
   "version": "1.0.0",
-  "description": "Provides a server that implements JSON:API spec",
+  "description": "A NodeJS framework implementing json:api",
   "main": "lib/index.js",
   "engines": {
     "node": "v6.3.1"
@@ -12,7 +12,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Blake Hair <blake.hair@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "lodash": "^4.17.4",
     "restify": "^4.3.0",
