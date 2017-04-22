@@ -1,19 +1,20 @@
-const restify = require('restify')
-const plugins = require('restify-plugins')
-const _ = require('lodash')
-const Sequelize = require('sequelize')
-const routes = require('./routes')
-const Database = require('./database')
+import restify from 'restify'
+import plugins from 'restify-plugins'
+import _ from 'lodash'
+import Sequelize from 'sequelize'
+
+import { generateRoutes } from './routes'
+import Database from './database'
 
 const database = new Database('database', { storage: './database.sqlite' })
 const resources = {}
 
-apiServer = {
+const apiServer = {
   define: function define(resource) {
     const model = database.defineModel(resource.type, resource.attributes)
     resources[resource.type] = {
       model: model,
-      routes: routes.generateRoutes(model)
+      routes: generateRoutes(model)
     }
   },
 
@@ -50,7 +51,7 @@ apiServer = {
   }
 }
 
-module.exports = apiServer
+export default apiServer
 
 apiServer.define({
   type: 'users',

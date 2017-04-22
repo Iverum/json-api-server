@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Provides a server that implements JSON:API spec",
   "main": "lib/index.js",
+  "engines": {
+    "node": "v6.3.1"
+  },
   "scripts": {
     "build": "babel src -d lib",
     "start": "babel src -d lib && node lib/index.js",
@@ -18,7 +21,7 @@
     "yayson": "^2.0.3"
   },
   "devDependencies": {
-    "babel-cli": "6.24.1",
+    "babel-cli": "^6.24.1",
     "babel-preset-env": "^1.4.0"
   }
 }

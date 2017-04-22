@@ -1,4 +1,4 @@
-const Sequelize = require('sequelize')
+import Sequelize from 'sequelize'
 
 const defaultOptions = {
   username: null,
@@ -12,7 +12,7 @@ const defaultOptions = {
   }
 }
 
-class Database {
+export default class Database {
   constructor(name, options = {}) {
     const mergedOptions = Object.assign({}, defaultOptions, options)
     this._sequelize = new Sequelize(
@@ -27,5 +27,3 @@ class Database {
     return this._sequelize.define(type, attributes, { freezeTableName: true })
   }
 }
-
-module.exports = Database

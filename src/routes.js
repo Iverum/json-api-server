@@ -1,4 +1,4 @@
-function generateRoutes(model) {
+export function generateRoutes(model) {
   return {
     get: function getResource(req, res, next) {
       return model.findAll()
@@ -9,5 +9,3 @@ function generateRoutes(model) {
     }
   }
 }
-
-module.exports.generateRoutes = generateRoutes
