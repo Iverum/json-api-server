@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import Errors from 'restify-errors'
 import JsonApiHelper from './json-api-helper'
 
 export default function generateRoutes(model) {
@@ -15,6 +16,9 @@ export default function generateRoutes(model) {
     get: function getResource(req, res, next) {
       return model.findById(req.params.id)
         .then((resource) => {
+          if (_.isEmpty(resource)) {
+            return next(new Errors.NotFoundError())
+          }
           res.send(apiHelper.serialize(resource))
           return next()
         })

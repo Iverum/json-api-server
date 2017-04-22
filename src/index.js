@@ -3,6 +3,7 @@ import plugins from 'restify-plugins'
 import _ from 'lodash'
 import Sequelize from 'sequelize'
 
+import jsonApiFormatter, { sendUnsupportedType } from './formatter'
 import generateRoutes from './routes'
 import Database from './database'
 
@@ -20,30 +21,11 @@ const apiServer = {
   },
 
   start: function start() {
-    function sendUnsupportedType(req, res) {
-      res.send(415)
-    }
-
     const server = restify.createServer({
       name: 'JSON::API Server',
       version: '1.0.0',
       formatters: {
-        'application/vnd.api+json': function handleJsonApi(req, res, body, cb) {
-          res.setHeader('content-type', 'application/vnd.api+json')
-          if (body instanceof Error) {
-            console.log('ERROR', body)
-            res.status(500)
-            return cb(null, JSON.stringify({
-              errors: [{
-                status: '500',
-                title: 'Internal Server Error',
-                detail: body.message
-              }]
-            }))
-          }
-          const data = (body) ? JSON.stringify(body) : 'null'
-          return cb(null, data)
-        },
+        'application/vnd.api+json': jsonApiFormatter,
         'application/javascript': sendUnsupportedType,
         'application/json': sendUnsupportedType,
         'application/octet-stream': sendUnsupportedType,

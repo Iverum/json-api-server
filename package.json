@@ -17,6 +17,7 @@
   "dependencies": {
     "lodash": "^4.17.4",
     "restify": "^4.3.0",
+    "restify-errors": "^4.3.0",
     "restify-plugins": "^1.6.0",
     "sequelize": "^3.30.4",
     "yayson": "^2.0.3"
