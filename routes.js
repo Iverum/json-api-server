@@ -1,6 +1,13 @@
-function getResource(req, res, next) {
-  res.send('Hello, world!')
-  return next()
+function generateRoutes(model) {
+  return {
+    get: function getResource(req, res, next) {
+      return model.findAll()
+        .then((response) => {
+          res.send(response)
+          return next()
+        })
+    }
+  }
 }
 
-module.exports.get = getResource
+module.exports.generateRoutes = generateRoutes

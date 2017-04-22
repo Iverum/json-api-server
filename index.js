@@ -1,16 +1,19 @@
 const restify = require('restify')
 const plugins = require('restify-plugins')
 const _ = require('lodash')
+const Sequelize = require('sequelize')
 const routes = require('./routes')
+const Database = require('./database')
 
+const database = new Database('database', { storage: './database.sqlite' })
 const resources = {}
 
 apiServer = {
   define: function define(resource) {
+    const model = database.defineModel(resource.type, resource.attributes)
     resources[resource.type] = {
-      routes: {
-        get: routes.get
-      }
+      model: model,
+      routes: routes.generateRoutes(model)
     }
   },
 
@@ -37,6 +40,7 @@ apiServer = {
     server.use(plugins.acceptParser(['application/vnd.api+json']))
 
     _.forOwn(resources, function mapResources(value, key) {
+      value.model.sync({ force: true })
       server.get(`/${key}`, value.routes.get)
     })
 
@@ -48,5 +52,11 @@ apiServer = {
 
 module.exports = apiServer
 
-apiServer.define({ type: 'users' })
+apiServer.define({
+  type: 'users',
+  attributes: {
+    firstName: { type: Sequelize.STRING },
+    lastName: { type: Sequelize.STRING }
+  }
+})
 apiServer.start()
