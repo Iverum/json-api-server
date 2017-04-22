@@ -3,18 +3,18 @@ import plugins from 'restify-plugins'
 import _ from 'lodash'
 import Sequelize from 'sequelize'
 
-import { generateRoutes } from './routes'
+import generateRoutes from './routes'
 import Database from './database'
 
 const database = new Database('database', { storage: './database.sqlite' })
 const resources = {}
 
 const apiServer = {
-  Sequelize: Sequelize,
+  Sequelize,
   define: function define(resource) {
     const model = database.defineModel(resource.type, resource.attributes)
     resources[resource.type] = {
-      model: model,
+      model,
       routes: generateRoutes(model)
     }
   },
@@ -51,9 +51,9 @@ const apiServer = {
       }
     })
     server.use(plugins.acceptParser(['application/vnd.api+json']))
-    server.use(plugins.jsonBodyParser());
+    server.use(plugins.jsonBodyParser())
 
-    _.forOwn(resources, function mapResources(value, key) {
+    _.forOwn(resources, (value, key) => {
       value.model.sync({ force: true })
       server.get(`/${key}`, value.routes.getAll)
       server.get(`/${key}/:id`, value.routes.get)
@@ -62,7 +62,7 @@ const apiServer = {
       server.del(`/${key}/:id`, value.routes.delete)
     })
 
-    server.listen(8080, function() {
+    server.listen(8080, () => {
       console.log('%s listening at %s', server.name, server.url)
     })
   }

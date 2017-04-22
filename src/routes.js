@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import JsonApiHelper from './json-api-helper'
 
-export function generateRoutes(model) {
+export default function generateRoutes(model) {
   const apiHelper = new JsonApiHelper(model.getTableName())
   return {
     getAll: function getAllResources(req, res, next) {
@@ -23,7 +23,7 @@ export function generateRoutes(model) {
     create: function createResource(req, res, next) {
       const resource = apiHelper.deserialize(JSON.parse(req.body.toString('utf8')))
       return model.findOrCreate({ where: resource, default: resource })
-        .spread(function(newResource, created) {
+        .spread((newResource, created) => {
           if (created) {
             res.send(200, apiHelper.serialize(newResource))
           } else {
@@ -57,9 +57,9 @@ export function generateRoutes(model) {
         .then((numberDestroyed) => {
           if (numberDestroyed === 1) {
             res.send(204)
-          } else {
-            throw Error('Could not delete resource')
+            return next()
           }
+          throw Error('Could not delete resource')
         })
     }
   }

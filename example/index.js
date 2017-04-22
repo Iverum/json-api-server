@@ -1,4 +1,5 @@
 import apiServer from '../lib'
+
 const { Sequelize } = apiServer
 
 apiServer.define({

@@ -15,7 +15,7 @@ const defaultOptions = {
 export default class Database {
   constructor(name, options = {}) {
     const mergedOptions = Object.assign({}, defaultOptions, options)
-    this._sequelize = new Sequelize(
+    this.sequelize = new Sequelize(
       name,
       mergedOptions.username,
       mergedOptions.password,
@@ -24,6 +24,6 @@ export default class Database {
   }
 
   defineModel(type, attributes) {
-    return this._sequelize.define(type, attributes, { freezeTableName: true })
+    return this.sequelize.define(type, attributes, { freezeTableName: true })
   }
 }

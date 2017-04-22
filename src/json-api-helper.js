@@ -8,7 +8,7 @@ export default class JsonApiHelper {
     this.type = type
   }
 
-  deserialize(data) {
+  static deserialize(data) {
     const deserialized = store.sync(data)
     delete deserialized.type
     return deserialized
