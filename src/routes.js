@@ -31,6 +31,25 @@ export function generateRoutes(model) {
           }
           return next()
         })
+    },
+
+    update: function updateResource(req, res, next) {
+      const bodyJson = JSON.parse(req.body.toString('utf8'))
+      const attributesToUpdate = bodyJson.data.attributes
+      const updates = apiHelper.deserialize(bodyJson)
+      return model.update(updates, {
+        where: { id: updates.id },
+        fields: _.keys(attributesToUpdate)
+      })
+        .spread((rowsUpdated) => {
+          if (!rowsUpdated || rowsUpdated < 1) {
+            throw Error('Could not update resource')
+          }
+          return model.findById(updates.id)
+        }).then((resource) => {
+          res.send(200, apiHelper.serialize(resource))
+          return next()
+        })
     }
   }
 }

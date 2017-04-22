@@ -29,7 +29,18 @@ const apiServer = {
       formatters: {
         'application/vnd.api+json': function handleJsonApi(req, res, body, cb) {
           res.setHeader('content-type', 'application/vnd.api+json')
-          var data = (body) ? JSON.stringify(body) : 'null'
+          if (body instanceof Error) {
+            console.log('ERROR', body)
+            res.status(500)
+            return cb(null, JSON.stringify({
+              errors: [{
+                status: '500',
+                title: 'Internal Server Error',
+                detail: body.message
+              }]
+            }))
+          }
+          const data = (body) ? JSON.stringify(body) : 'null'
           return cb(null, data)
         },
         'application/javascript': sendUnsupportedType,
@@ -46,6 +57,7 @@ const apiServer = {
       server.get(`/${key}`, value.routes.getAll)
       server.get(`/${key}/:id`, value.routes.get)
       server.post(`/${key}`, value.routes.create)
+      server.patch(`/${key}/:id`, value.routes.update)
     })
 
     server.listen(8080, function() {
