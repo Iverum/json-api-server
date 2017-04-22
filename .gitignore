@@ -1,5 +1,6 @@
 *.sqlite
 build/
+lib/__tests__/
 
 # Logs
 logs
