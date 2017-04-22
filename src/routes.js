@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import Errors from 'restify-errors'
+import sequelize from 'sequelize'
 import JsonApiHelper from './json-api-helper'
 
 export default function generateRoutes(model) {
@@ -34,6 +35,16 @@ export default function generateRoutes(model) {
             res.send(201, apiHelper.serialize(newResource))
           }
           return next()
+        })
+        .catch(sequelize.ValidationError, (error) => {
+          const detail = _.reduce(error.errors, (msg, err) => `${msg}${err.path}: ${err.message}\n`, '')
+          res.send(400, {
+            errors: [{
+              status: '400',
+              title: 'Bad Request',
+              detail
+            }]
+          })
         })
     },
 
