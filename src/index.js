@@ -39,10 +39,12 @@ const apiServer = {
       }
     })
     server.use(plugins.acceptParser(['application/vnd.api+json']))
+    server.use(plugins.jsonBodyParser());
 
     _.forOwn(resources, function mapResources(value, key) {
       value.model.sync({ force: true })
       server.get(`/${key}`, value.routes.get)
+      server.post(`/${key}`, value.routes.create)
     })
 
     server.listen(8080, function() {
