@@ -32,5 +32,12 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jest": "^19.0.1",
     "jest": "^19.0.2"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "<rootDir>/lib/",
+      "<rootDir>/example/",
+      "/node_modules/"
+    ]
   }
 }

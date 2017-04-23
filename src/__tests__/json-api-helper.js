@@ -1,7 +1,8 @@
+import _ from 'lodash'
 import JsonApiHelper from '../json-api-helper'
 
 describe('JsonApiHelper', () => {
-  const helper = new JsonApiHelper('users', 'default')
+  const helper = new JsonApiHelper('users', 'default', ['password'])
   const serializedTestData = {
     data: {
       id: '1',
@@ -15,11 +16,12 @@ describe('JsonApiHelper', () => {
   const unserializedTestData = {
     id: '1',
     firstName: 'Blake',
-    lastName: 'Hair'
+    lastName: 'Hair',
+    password: 'password'
   }
 
   test('unserializes data', () => {
-    expect(helper.deserialize(serializedTestData)).toEqual(unserializedTestData)
+    expect(helper.deserialize(serializedTestData)).toEqual(_.omit(unserializedTestData, ['password']))
   })
 
   test('serializes data', () => {

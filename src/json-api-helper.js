@@ -1,12 +1,18 @@
 import yayson from 'yayson'
+import _ from 'lodash'
 
 const { Store } = yayson({ adapter: 'sequelize' })
 const store = new Store()
 
 export default class JsonApiHelper {
-  constructor(type, adapter = 'sequelize') {
-    this.type = type
-    this.adapter = adapter
+  constructor(type, adapter = 'sequelize', omitFields = []) {
+    const jsonApi = yayson({ adapter })
+    this.Presenter = class WrappedPresenter extends jsonApi.Presenter {}
+    this.Presenter.prototype.type = type
+    this.Presenter.prototype.attributes = function renderAttributes() {
+      const attrs = jsonApi.Presenter.prototype.attributes.apply(this, arguments) // eslint-disable-line
+      return _.omit(attrs, omitFields)
+    }
   }
 
   deserialize(data) {
@@ -16,9 +22,7 @@ export default class JsonApiHelper {
   }
 
   serialize(data) {
-    const jsonApi = yayson({ adapter: this.adapter })
-    const presenter = new jsonApi.Presenter()
-    presenter.type = this.type
+    const presenter = new this.Presenter()
     return presenter.render(data)
   }
 }

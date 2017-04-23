@@ -18,6 +18,11 @@ apiServer.define({
       validate: {
         isAlpha: true
       }
+    },
+    password: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      omit: true
     }
   }
 })
