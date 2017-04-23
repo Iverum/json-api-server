@@ -9,13 +9,20 @@ import JsonApiHelper from './json-api-helper'
 const defaultOptions = {
   name: 'JSON::API Server',
   version: '1.0.0',
-  port: 8080
+  port: 8080,
+  database: {
+    username: null,
+    password: null,
+    host: 'localhost',
+    dialect: 'sqlite',
+    storage: './database.sqlite'
+  }
 }
 
 export default class ApiServer {
   constructor(options) {
     this.options = Object.assign({}, defaultOptions, options)
-    this.database = new Database('database', { storage: './database.sqlite' })
+    this.database = new Database('database', this.options.database)
     this.resources = {}
     this.Sequelize = require('sequelize') // eslint-disable-line global-require
   }

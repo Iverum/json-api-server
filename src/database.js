@@ -1,10 +1,6 @@
 import Sequelize from 'sequelize'
 
 const defaultOptions = {
-  username: null,
-  password: null,
-  host: 'localhost',
-  dialect: 'sqlite',
   pool: {
     max: 5,
     min: 0,
