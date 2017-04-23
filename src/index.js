@@ -11,6 +11,7 @@ const defaultOptions = {
   version: '1.0.0',
   port: 8080,
   database: {
+    name: 'database',
     username: null,
     password: null,
     host: 'localhost',
@@ -22,7 +23,7 @@ const defaultOptions = {
 export default class ApiServer {
   constructor(options) {
     this.options = Object.assign({}, defaultOptions, options)
-    this.database = new Database('database', this.options.database)
+    this.database = new Database(this.options.database.name, this.options.database)
     this.resources = {}
     this.Sequelize = require('sequelize') // eslint-disable-line global-require
   }

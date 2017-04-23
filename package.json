@@ -1,6 +1,6 @@
 {
   "name": "json-api-server",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "repository": "https://github.com/Iverum/json-api-server.git",
   "description": "A NodeJS framework implementing json:api",
   "main": "lib/index.js",

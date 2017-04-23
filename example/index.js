@@ -1,6 +1,8 @@
 import ApiServer from '../lib'
 
-const exampleServer = new ApiServer()
+const exampleServer = new ApiServer({
+  name: 'Example Server'
+})
 const { Sequelize } = exampleServer
 
 exampleServer.define({
