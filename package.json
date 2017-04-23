@@ -4,9 +4,6 @@
   "repository": "https://github.com/Iverum/json-api-server.git",
   "description": "A NodeJS framework implementing json:api",
   "main": "lib/index.js",
-  "engines": {
-    "node": "v6.3.1"
-  },
   "scripts": {
     "build": "babel src -d lib",
     "start": "babel src -d lib && babel example -d build && node build/index.js",
