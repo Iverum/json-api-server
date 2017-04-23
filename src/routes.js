@@ -1,10 +1,8 @@
 import _ from 'lodash'
 import Errors from 'restify-errors'
 import sequelize from 'sequelize'
-import JsonApiHelper from './json-api-helper'
 
-export default function generateRoutes(model) {
-  const apiHelper = new JsonApiHelper(model.getTableName())
+export default function generateRoutes(model, apiHelper) {
   return {
     getAll: function getAllResources(req, res, next) {
       return model.findAll()

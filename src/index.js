@@ -6,6 +6,7 @@ import Sequelize from 'sequelize'
 import jsonApiFormatter, { sendUnsupportedType } from './formatter'
 import generateRoutes from './routes'
 import Database from './database'
+import JsonApiHelper from './json-api-helper'
 
 const database = new Database('database', { storage: './database.sqlite' })
 const resources = {}
@@ -14,9 +15,11 @@ const apiServer = {
   Sequelize,
   define: function define(resource) {
     const model = database.defineModel(resource.type, resource.attributes)
+    const fieldsToOmit = _.keys(_.pickBy(resource.attributes, (attribute) => attribute.omit))
+    const apiHelper = new JsonApiHelper(resource.type, 'sequelize', fieldsToOmit)
     resources[resource.type] = {
       model,
-      routes: generateRoutes(model)
+      routes: generateRoutes(model, apiHelper)
     }
   },
 
