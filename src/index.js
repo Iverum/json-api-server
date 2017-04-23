@@ -1,32 +1,39 @@
 import restify from 'restify'
 import plugins from 'restify-plugins'
 import _ from 'lodash'
-import Sequelize from 'sequelize'
-
 import jsonApiFormatter, { sendUnsupportedType } from './formatter'
 import generateRoutes from './routes'
 import Database from './database'
 import JsonApiHelper from './json-api-helper'
 
-const database = new Database('database', { storage: './database.sqlite' })
-const resources = {}
+const defaultOptions = {
+  name: 'JSON::API Server',
+  version: '1.0.0',
+  port: 8080
+}
 
-const apiServer = {
-  Sequelize,
-  define: function define(resource) {
-    const model = database.defineModel(resource.type, resource.attributes)
+export default class ApiServer {
+  constructor(options) {
+    this.options = Object.assign({}, defaultOptions, options)
+    this.database = new Database('database', { storage: './database.sqlite' })
+    this.resources = {}
+    this.Sequelize = require('sequelize') // eslint-disable-line global-require
+  }
+
+  define(resource) {
+    const model = this.database.defineModel(resource.type, resource.attributes)
     const fieldsToOmit = _.keys(_.pickBy(resource.attributes, (attribute) => attribute.omit))
     const apiHelper = new JsonApiHelper(resource.type, 'sequelize', fieldsToOmit)
-    resources[resource.type] = {
+    this.resources[resource.type] = {
       model,
       routes: generateRoutes(model, apiHelper)
     }
-  },
+  }
 
-  start: function start() {
+  start() {
     const server = restify.createServer({
-      name: 'JSON::API Server',
-      version: '1.0.0',
+      name: this.options.name,
+      version: this.options.version,
       formatters: {
         'application/vnd.api+json': jsonApiFormatter,
         'application/javascript': sendUnsupportedType,
@@ -38,7 +45,7 @@ const apiServer = {
     server.use(plugins.acceptParser(['application/vnd.api+json']))
     server.use(plugins.jsonBodyParser())
 
-    _.forOwn(resources, (value, key) => {
+    _.forOwn(this.resources, (value, key) => {
       value.model.sync({ force: true })
       server.get(`/${key}`, value.routes.getAll)
       server.get(`/${key}/:id`, value.routes.get)
@@ -47,9 +54,8 @@ const apiServer = {
       server.del(`/${key}/:id`, value.routes.delete)
     })
 
-    server.listen(8080, () => {
+    server.listen(this.options.port, () => {
       console.log('%s listening at %s', server.name, server.url)
     })
   }
 }
-export default apiServer

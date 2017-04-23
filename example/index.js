@@ -1,8 +1,9 @@
-import apiServer from '../lib'
+import ApiServer from '../lib'
 
-const { Sequelize } = apiServer
+const exampleServer = new ApiServer()
+const { Sequelize } = exampleServer
 
-apiServer.define({
+exampleServer.define({
   type: 'users',
   attributes: {
     firstName: {
@@ -26,4 +27,4 @@ apiServer.define({
     }
   }
 })
-apiServer.start()
+exampleServer.start()
