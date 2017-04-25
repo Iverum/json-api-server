@@ -32,15 +32,17 @@ export default class ApiServer {
 
   define(resource) {
     const model = this.database.defineModel(resource.type, resource.attributes)
-    model.sync({ force: true })
+    const isReadyPromise = model.sync({ force: true })
       .then(() => {
         model.bulkCreate(resource.examples)
+        return true
       })
     const fieldsToOmit = _.keys(_.pickBy(resource.attributes, (attribute) => attribute.omit))
     const apiHelper = new JsonApiHelper(resource.type, 'sequelize', fieldsToOmit)
     this.resources[resource.type] = {
       model,
-      routes: generateRoutes(model, apiHelper)
+      routes: generateRoutes(model, apiHelper),
+      ready: isReadyPromise
     }
     return this.resources[resource.type]
   }
@@ -63,31 +65,34 @@ export default class ApiServer {
   }
 
   start() {
-    const server = restify.createServer({
-      name: this.options.name,
-      version: this.options.version,
-      formatters: {
-        'application/vnd.api+json': jsonApiFormatter,
-        'application/javascript': sendUnsupportedType,
-        'application/json': sendUnsupportedType,
-        'application/octet-stream': sendUnsupportedType,
-        'text/plain': sendUnsupportedType
-      }
-    })
-    server.use(plugins.acceptParser(['application/vnd.api+json']))
-    server.use(plugins.jsonBodyParser())
-    server.use(plugins.authorizationParser())
+    Promise.all(_.map(this.resources, (resource) => resource.ready))
+      .then(() => {
+        const server = restify.createServer({
+          name: this.options.name,
+          version: this.options.version,
+          formatters: {
+            'application/vnd.api+json': jsonApiFormatter,
+            'application/javascript': sendUnsupportedType,
+            'application/json': sendUnsupportedType,
+            'application/octet-stream': sendUnsupportedType,
+            'text/plain': sendUnsupportedType
+          }
+        })
+        server.use(plugins.acceptParser(['application/vnd.api+json']))
+        server.use(plugins.jsonBodyParser())
+        server.use(plugins.authorizationParser())
 
-    _.forOwn(this.resources, (value, key) => {
-      server.get(`/${key}`, this.authenticator, value.routes.getAll)
-      server.get(`/${key}/:id`, this.authenticator, value.routes.get)
-      server.post(`/${key}`, this.authenticator, value.routes.create)
-      server.patch(`/${key}/:id`, this.authenticator, value.routes.update)
-      server.del(`/${key}/:id`, this.authenticator, value.routes.delete)
-    })
+        _.forOwn(this.resources, (value, key) => {
+          server.get(`/${key}`, this.authenticator, value.routes.getAll)
+          server.get(`/${key}/:id`, this.authenticator, value.routes.get)
+          server.post(`/${key}`, this.authenticator, value.routes.create)
+          server.patch(`/${key}/:id`, this.authenticator, value.routes.update)
+          server.del(`/${key}/:id`, this.authenticator, value.routes.delete)
+        })
 
-    server.listen(this.options.port, () => {
-      console.log('%s listening at %s', server.name, server.url)
-    })
+        server.listen(this.options.port, () => {
+          console.log('%s listening at %s', server.name, server.url)
+        })
+      })
   }
 }
