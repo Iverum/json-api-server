@@ -1,5 +1,6 @@
 import restify from 'restify'
 import plugins from 'restify-plugins'
+import errors from 'restify-errors'
 import _ from 'lodash'
 import jsonApiFormatter, { sendUnsupportedType } from './formatter'
 import generateRoutes from './routes'
@@ -25,6 +26,7 @@ export default class ApiServer {
     this.options = Object.assign({}, defaultOptions, options)
     this.database = new Database(this.options.database.name, this.options.database)
     this.resources = {}
+    this.authenticator = (req, res, next) => next()
     this.Sequelize = require('sequelize') // eslint-disable-line global-require
   }
 
@@ -35,6 +37,23 @@ export default class ApiServer {
     this.resources[resource.type] = {
       model,
       routes: generateRoutes(model, apiHelper)
+    }
+  }
+
+  authenticate(authenticationFunction) {
+    // Should wrap the function and only pass it the request.
+    // The function should take a request and a return true if authenticated
+    // The function should throw an error or return false if unauthenticated
+    this.authenticator = (req, res, next) => {
+      try {
+        const isAuthenticated = authenticationFunction(req)
+        if (isAuthenticated) {
+          return next()
+        }
+        return next(new errors.ForbiddenError())
+      } catch (error) {
+        return next(new errors.ForbiddenError(error.message))
+      }
     }
   }
 
@@ -55,11 +74,11 @@ export default class ApiServer {
 
     _.forOwn(this.resources, (value, key) => {
       value.model.sync({ force: true })
-      server.get(`/${key}`, value.routes.getAll)
-      server.get(`/${key}/:id`, value.routes.get)
-      server.post(`/${key}`, value.routes.create)
-      server.patch(`/${key}/:id`, value.routes.update)
-      server.del(`/${key}/:id`, value.routes.delete)
+      server.get(`/${key}`, this.authenticator, value.routes.getAll)
+      server.get(`/${key}/:id`, this.authenticator, value.routes.get)
+      server.post(`/${key}`, this.authenticator, value.routes.create)
+      server.patch(`/${key}/:id`, this.authenticator, value.routes.update)
+      server.del(`/${key}/:id`, this.authenticator, value.routes.delete)
     })
 
     server.listen(this.options.port, () => {

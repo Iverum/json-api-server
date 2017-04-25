@@ -5,6 +5,11 @@ const exampleServer = new ApiServer({
 })
 const { Sequelize } = exampleServer
 
+exampleServer.authenticate((request) => {
+  console.log(request)
+  return true
+})
+
 exampleServer.define({
   type: 'users',
   attributes: {
@@ -29,4 +34,5 @@ exampleServer.define({
     }
   }
 })
+
 exampleServer.start()
