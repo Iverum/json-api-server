@@ -32,29 +32,34 @@ export default class ApiServer {
 
   define(resource) {
     const model = this.database.defineModel(resource.type, resource.attributes)
+    model.sync({ force: true })
+      .then(() => {
+        model.bulkCreate(resource.examples)
+      })
     const fieldsToOmit = _.keys(_.pickBy(resource.attributes, (attribute) => attribute.omit))
     const apiHelper = new JsonApiHelper(resource.type, 'sequelize', fieldsToOmit)
     this.resources[resource.type] = {
       model,
       routes: generateRoutes(model, apiHelper)
     }
+    return this.resources[resource.type]
   }
 
   authenticate(authenticationFunction) {
     // Should wrap the function and only pass it the request.
     // The function should take a request and a return true if authenticated
     // The function should throw an error or return false if unauthenticated
-    this.authenticator = (req, res, next) => {
-      try {
-        const isAuthenticated = authenticationFunction(req)
-        if (isAuthenticated) {
+    this.authenticator = (req, res, next) => Promise.resolve(authenticationFunction(req))
+      .then((result) => {
+        if (result instanceof Error) {
+          return next(new errors.ForbiddenError(result.message))
+        }
+        if (result) {
           return next()
         }
         return next(new errors.ForbiddenError())
-      } catch (error) {
-        return next(new errors.ForbiddenError(error.message))
-      }
-    }
+      })
+      .catch((error) => next(new errors.ForbiddenError(error.message)))
   }
 
   start() {
@@ -71,9 +76,9 @@ export default class ApiServer {
     })
     server.use(plugins.acceptParser(['application/vnd.api+json']))
     server.use(plugins.jsonBodyParser())
+    server.use(plugins.authorizationParser())
 
     _.forOwn(this.resources, (value, key) => {
-      value.model.sync({ force: true })
       server.get(`/${key}`, this.authenticator, value.routes.getAll)
       server.get(`/${key}/:id`, this.authenticator, value.routes.get)
       server.post(`/${key}`, this.authenticator, value.routes.create)

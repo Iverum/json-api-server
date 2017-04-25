@@ -9,6 +9,13 @@ function createError(status = '500', title = 'Internal Server Error', detail) {
 }
 
 function handleError(res, body) {
+  if (body instanceof Errors.ForbiddenError) {
+    res.status(403)
+    return {
+      errors: [createError('403', 'Forbidden', body.message)]
+    }
+  }
+
   if (body instanceof Errors.NotFoundError) {
     res.status(404)
     return {
