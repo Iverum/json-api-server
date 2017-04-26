@@ -67,12 +67,12 @@ Creates a new server instance configured with the passed in options.
 ```
 
 ### const resource = jsonApiServer.define(definition)
-Creates a resource for the server. A resource will automatically define default CRUD routes and a Sequelize model and will create a table for the resource if none exists on the database.
+Creates a resource for the server. A resource will automatically define default CRUD routes and a [Sequelize model](http://sequelize.readthedocs.io/en/latest/docs/models-definition/) and will create a table for the resource if none exists on the database.
 
 - `definition` (Object) - A resouce definition is an object that defines. At most a definition should include a `type` and an object for `attributes`.
 ```js
-  type: 'photos' // Will be used as the type in json:api responses and as the root for your URLs related to this resource,
-  attributes: { // Attributes mostly follow the rules for defining a [Sequelize model](http://sequelize.readthedocs.io/en/latest/docs/models-definition/)
+  type: 'photos' // Will be used as the type in json:api responses and as the root for your URLs related to this resource
+  attributes: { // Attributes mostly follow the rules for defining a Sequelize model
     title: { type: jsonApiServer.Sequelize.STRING }, // An attributes requires at least a type
     url: {
       type: jsonApiServer.Sequelize.STRING,
@@ -80,7 +80,7 @@ Creates a resource for the server. A resource will automatically define default 
       validate: {
         isUrl: true
       }
-    }, // More options can be added to allow for validation of the attribute. These all come from [Sequelize](http://sequelize.readthedocs.io/en/latest/docs/models-definition/#validations)
+    }, // More options can be added to allow for validation of the attribute
     superSecretMetadata: {
       type: jsonApiServer.Sequelize.STRING,
       omit: true // Attributes you'd like to leave out of the server responses can be omitted
