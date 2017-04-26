@@ -36,10 +36,14 @@ const users = exampleServer.define({
 })
 
 exampleServer.authenticate((request) => {
-  const { username, password } = request.authorization.basic
-  return users.model.findOne({ where: { firstName: username } })
-    .then((user) => user.get('password') === password)
-    .catch(() => new Error('No match found for username/password'))
+  try {
+    const { username, password } = request.authorization.basic
+    return users.model.findOne({ where: { firstName: username } })
+      .then((user) => user.get('password') === password)
+      .catch(() => new Error('No match found for username/password'))
+  } catch (error) {
+    return new Error('No match found for username/password')
+  }
 })
 
 exampleServer.start()

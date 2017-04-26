@@ -21,6 +21,13 @@ const defaultOptions = {
   }
 }
 
+function isAuthenticated(authenticatedRoutes, route) {
+  if (_.isEmpty(authenticatedRoutes)) {
+    return true
+  }
+  return authenticatedRoutes.includes(route)
+}
+
 export default class ApiServer {
   constructor(options) {
     this.options = Object.assign({}, defaultOptions, options)
@@ -42,15 +49,13 @@ export default class ApiServer {
     this.resources[resource.type] = {
       model,
       routes: generateRoutes(model, apiHelper),
+      authenticatedRoutes: resource.authenticatedRoutes || [],
       ready: isReadyPromise
     }
     return this.resources[resource.type]
   }
 
   authenticate(authenticationFunction) {
-    // Should wrap the function and only pass it the request.
-    // The function should take a request and a return true if authenticated
-    // The function should throw an error or return false if unauthenticated
     this.authenticator = (req, res, next) => Promise.resolve(authenticationFunction(req))
       .then((result) => {
         if (result instanceof Error) {
@@ -82,12 +87,13 @@ export default class ApiServer {
         server.use(plugins.jsonBodyParser())
         server.use(plugins.authorizationParser())
 
-        _.forOwn(this.resources, (value, key) => {
-          server.get(`/${key}`, this.authenticator, value.routes.getAll)
-          server.get(`/${key}/:id`, this.authenticator, value.routes.get)
-          server.post(`/${key}`, this.authenticator, value.routes.create)
-          server.patch(`/${key}/:id`, this.authenticator, value.routes.update)
-          server.del(`/${key}/:id`, this.authenticator, value.routes.delete)
+        _.forOwn(this.resources, (resource, type) => {
+          const { authenticatedRoutes, routes } = resource
+          server.get(`/${type}`, isAuthenticated(authenticatedRoutes, 'getAll') ? [this.authenticator, routes.getAll] : routes.getAll)
+          server.get(`/${type}/:id`, isAuthenticated(authenticatedRoutes, 'get') ? [this.authenticator, routes.get] : routes.get)
+          server.post(`/${type}`, isAuthenticated(authenticatedRoutes, 'create') ? [this.authenticator, routes.create] : routes.create)
+          server.patch(`/${type}/:id`, isAuthenticated(authenticatedRoutes, 'update') ? [this.authenticator, routes.update] : routes.update)
+          server.del(`/${type}/:id`, isAuthenticated(authenticatedRoutes, 'delete') ? [this.authenticator, routes.delete] : routes.delete)
         })
 
         server.listen(this.options.port, () => {
