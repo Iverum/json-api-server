@@ -54,3 +54,29 @@ server.define({
 
 server.start()
 ```
+
+### Authentication
+You can define an authentication scheme for your API by using the `JsonApiServer.authenticate` method. It takes in a function that accepts the request as its only argument. The request will include any HTTP Authorization headers under `request.authorization`. HTTP Basic and [HTTP Signature](https://github.com/joyent/node-http-signature) values will be decoded, but other methods of authentication will need to be decoded by hand.
+
+```js
+{
+  scheme: <Basic|Signature|...>,
+  credentials: <Undecoded value of header>,
+  basic: {
+    username: $user
+    password: $password
+  }
+}
+```
+
+The function should return `true` if the user is authenticated and return `false` or throw an error if the user is not authenticated.
+
+#### Example of HTTP Basic Auth
+```js
+server.authenticate((request) => {
+  const { username, password } = request.authorization.basic
+  return users.model.findOne({ where: { firstName: username } })
+    .then((user) => user.get('password') === password)
+    .catch(() => new Error('No match found for username/password'))
+})
+```
