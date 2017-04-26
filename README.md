@@ -1,21 +1,8 @@
 # json-api-server
 
-A framework implementing [`json:api`](http://jsonapi.org/).
-
-## Motivation
-
-This framework is written with the goal of creating a tool that I can use to rapidly build APIs that conform the the json:api specification. There are a number of existing frameworks that do very similar things, but they either lack features I desire or are too lightweight and ambiguous about their use cases.
-
-My goal with this framework is to create a tool where a developer can specify a set of resources and the framework will automatically provide CRUD for those resources, while still allowing extensions to the basic routes.
-
-This framework is tightly coupled to the [Sequelize ORM](http://docs.sequelizejs.com/en/v3/) for now. If you're looking for a similar framework with more options for the storage solution I'd encourage you to check out [jsonapi-server](https://github.com/holidayextras/jsonapi-server). It was almost what I needed and may suit your needs.
+> A framework for RESTful APIs implementing [`json:api`](http://jsonapi.org/).
 
 ## Usage
-
-### Install
-`npm install --save json-api-server`
-
-### A basic API with a single resource
 ```js
 import JsonApiServer from 'json-api-server'
 
@@ -55,28 +42,62 @@ server.define({
 server.start()
 ```
 
-### Authentication
-You can define an authentication scheme for your API by using the `JsonApiServer.authenticate` method. It takes in a function that accepts the request as its only argument. The request will include any HTTP Authorization headers under `request.authorization`. HTTP Basic and [HTTP Signature](https://github.com/joyent/node-http-signature) values will be decoded, but other methods of authentication will need to be decoded by hand.
+## API
+```js
+import JsonApiServer from 'json-api-server'
+```
 
+### const jsonApiServer = new JsonApiServer([options])
+Creates a new server instance configured with the passed in options.
+
+- `options` (Object) - If passed in the options will be merged with the default options shown below:
 ```js
 {
-  scheme: <Basic|Signature|...>,
-  credentials: <Undecoded value of header>,
-  basic: {
-    username: $user
-    password: $password
+  name: 'JSON::API Server', // this will be set in the Server response header
+  port: 8080,
+  database: {
+    name: 'database',
+    username: null,
+    password: null,
+    host: 'localhost',
+    dialect: 'sqlite', // mysql || sqlite
+    storage: './database.sqlite' // location for the SQLite database
   }
 }
 ```
 
-The function should return `true` if the user is authenticated and return `false` or throw an error if the user is not authenticated.
+### const resource = jsonApiServer.define(definition)
+Creates a resource for the server. A resource will automatically define default CRUD routes and a Sequelize model and will create a table for the resource if none exists on the database.
 
-#### Example of HTTP Basic Auth
+- `definition` (Object) - A resouce definition is an object that defines. At most a definition should include a `type` and an object for `attributes`.
 ```js
-server.authenticate((request) => {
-  const { username, password } = request.authorization.basic
-  return users.model.findOne({ where: { firstName: username } })
-    .then((user) => user.get('password') === password)
-    .catch(() => new Error('No match found for username/password'))
-})
+  type: 'photos' // Will be used as the type in json:api responses and as the root for your URLs related to this resource,
+  attributes: { // Attributes mostly follow the rules for defining a [Sequelize model](http://sequelize.readthedocs.io/en/latest/docs/models-definition/)
+    title: { type: jsonApiServer.Sequelize.STRING }, // An attributes requires at least a type
+    url: {
+      type: jsonApiServer.Sequelize.STRING,
+      allowNull: false,
+      validate: {
+        isUrl: true
+      }
+    }, // More options can be added to allow for validation of the attribute. These all come from [Sequelize](http://sequelize.readthedocs.io/en/latest/docs/models-definition/#validations)
+    superSecretMetadata: {
+      type: jsonApiServer.Sequelize.STRING,
+      omit: true // Attributes you'd like to leave out of the server responses can be omitted
+    }
+  ]
 ```
+
+### jsonApiServer.start()
+Starts the server listening on the appropriate port and creates any missing database tables.
+
+## Install
+`npm install --save json-api-server`
+
+## Motivation
+
+This framework is written with the goal of creating a tool that I can use to rapidly build APIs that conform the the json:api specification. There are a number of existing frameworks that do very similar things, but they either lack features I desire or are too lightweight and ambiguous about their use cases.
+
+My goal with this framework is to create a tool where a developer can specify a set of resources and the framework will automatically provide CRUD for those resources, while still allowing extensions to the basic routes.
+
+This framework is tightly coupled to the [Sequelize ORM](http://docs.sequelizejs.com/en/v3/) for now. If you're looking for a similar framework with more options for the storage solution I'd encourage you to check out [jsonapi-server](https://github.com/holidayextras/jsonapi-server). It was almost what I needed and may suit your needs.
