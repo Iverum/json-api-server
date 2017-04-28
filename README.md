@@ -93,6 +93,11 @@ Creates a resource for the server. A resource will automatically define default 
   }]
 ```
 
+### jsonApiServer.authenticate(authenticator)
+Adds an authentication method to the API. This will be called before every route on a resource unless specific authenticated routes are supplied in the resource definition. The authentication function gets passed the request. HTTP Basic headers will be parsed into `request.authorization.basic` and contain properties for the decoded `username` and `password`. Other authorization types passed in through the header will be available undecoded in `request.authorization.credentials`.
+
+- authenticator (Function) - A function that takes in the [request parameter](http://restify.com/#request-api). It should return true if the request is authorized and should return false or throw an error if it is not. The message of the error will be communicated to the user with a 403.
+
 ### jsonApiServer.start()
 Starts the server listening on the appropriate port and creates any missing database tables.
 
