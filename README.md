@@ -85,7 +85,12 @@ Creates a resource for the server. A resource will automatically define default 
       type: jsonApiServer.Sequelize.STRING,
       omit: true // Attributes you'd like to leave out of the server responses can be omitted
     }
-  ]
+  },
+  authenticatedRoutes: ['create', 'update', 'delete'], // An array of routes that should be authenticated. An empty array or falsy value will authenticate all routes
+  examples: [{ // An array of resources to be created when the tables are created. This is useful to prototype in conjunction with sqlite
+    title: 'An Example',
+    url: 'http://www.example.com/'
+  }]
 ```
 
 ### jsonApiServer.start()

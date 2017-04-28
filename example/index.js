@@ -28,6 +28,7 @@ const users = exampleServer.define({
       omit: true
     }
   },
+  authenticatedRoutes: ['create', 'update', 'delete'],
   examples: [{
     firstName: 'Test',
     lastName: 'User',
