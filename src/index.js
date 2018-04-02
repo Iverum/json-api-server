@@ -87,6 +87,12 @@ export default class ApiServer {
         server.use(plugins.jsonBodyParser())
         server.use(plugins.authorizationParser())
 
+        server.get('/favicon.ico', (req, res) => {
+          res.writeHead(200, { 'Content-Type': 'image/x-icon' })
+          res.end()
+          return
+        })
+
         _.forOwn(this.resources, (resource, type) => {
           const { authenticatedRoutes, routes } = resource
           server.get(`/${type}`, isAuthenticated(authenticatedRoutes, 'getAll') ? [this.authenticator, routes.getAll] : routes.getAll)
