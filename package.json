@@ -4,6 +4,9 @@
   "repository": "https://github.com/Iverum/json-api-server.git",
   "description": "A NodeJS framework implementing json:api",
   "main": "lib/index.js",
+  "engines": {
+    "node": ">=8.9.11"
+  },
   "scripts": {
     "build": "babel src -d lib",
     "start": "babel src -d lib && babel example -d build && node build/index.js",
@@ -12,23 +15,23 @@
   "author": "Blake Hair <blake.hair@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.4",
-    "restify": "^4.3.0",
-    "restify-errors": "^4.3.0",
-    "restify-plugins": "^1.6.0",
-    "sequelize": "^3.30.4",
-    "sqlite3": "^3.1.8",
-    "yayson": "^2.0.3"
+    "lodash": "4.17.5",
+    "restify": "4.3.0",
+    "restify-errors": "4.3.0",
+    "restify-plugins": "1.6.0",
+    "sequelize": "4.37.5",
+    "sqlite3": "4.0.0",
+    "yayson": "2.0.3"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-jest": "^19.0.0",
-    "babel-preset-env": "^1.4.0",
-    "eslint": "^3.19.0",
-    "eslint-config-airbnb-base": "^11.1.3",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jest": "^19.0.1",
-    "jest": "^19.0.2"
+    "babel-cli": "6.26.0",
+    "babel-jest": "22.4.3",
+    "babel-preset-env": "1.6.1",
+    "eslint": "4.19.1",
+    "eslint-config-airbnb-base": "12.1.0",
+    "eslint-plugin-import": "2.10.0",
+    "eslint-plugin-jest": "21.15.0",
+    "jest": "22.4.3"
   },
   "jest": {
     "testPathIgnorePatterns": [
